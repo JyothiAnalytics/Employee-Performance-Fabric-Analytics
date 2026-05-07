@@ -24,6 +24,8 @@ To analyze global workforce data using Microsoft Fabric and provide actionable i
 - Geospatial Analysis: Employee distribution across the USA
 - Dynamic Visuals: Bar charts utilizing Field Parameters to toggle between different employee attributes
 
+<img width="2678" height="1414" alt="data_lineage" src="https://github.com/JyothiAnalytics/Employee-Performance-Fabric-Analytics/blob/main/Data_Lineage.png" />
+
 ---
 ## 📊 Dashboard
 
