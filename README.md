@@ -27,7 +27,7 @@ To analyze global workforce data using Microsoft Fabric and provide actionable i
 ---
 ## 📊 Dashboard
 
-<img width="2678" height="1414" alt="emp_performance" src="" />
+<img width="2678" height="1414" alt="emp_performance" src="https://github.com/JyothiAnalytics/Employee-Performance-Fabric-Analytics/blob/main/Emp_Performance_Dashboard.png" />
 
 ---
 ## 📈 Key Insights & Features
