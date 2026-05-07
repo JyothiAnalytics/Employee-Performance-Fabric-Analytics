@@ -1,0 +1,119 @@
+Mcode---
+
+let
+    // Define the start and end dates for the calendar
+    StartDate = #date(2024, 1, 1),
+    EndDate = #date(2024, 12, 31),
+    
+    // Create a list of dates between start and end dates
+    DateList = List.Dates(StartDate, Duration.Days(EndDate - StartDate) + 1, #duration(1, 0, 0, 0)),
+    
+    // Convert the list to a table
+    DateTable = Table.FromList(DateList, Splitter.SplitByNothing(), {"Date"}),
+
+    // Add useful columns
+    AddYear = Table.AddColumn(DateTable, "Year", each Date.Year([Date]), Int64.Type),
+    AddMonth = Table.AddColumn(AddYear, "Month", each Date.Month([Date]), Int64.Type),
+    AddMonthName = Table.AddColumn(AddMonth, "Month Name", each Date.ToText([Date], "MMMM"), type text),
+    AddMonthShort = Table.AddColumn(AddMonthName, "Month Short", each Date.ToText([Date], "MMM"), type text),
+    AddQuarter = Table.AddColumn(AddMonthShort, "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date])), type text),
+    AddDay = Table.AddColumn(AddQuarter, "Day", each Date.Day([Date]), Int64.Type),
+    AddDayOfWeek = Table.AddColumn(AddDay, "Day of Week", each Date.DayOfWeek([Date]), Int64.Type),
+    AddDayName = Table.AddColumn(AddDayOfWeek, "Day Name", each Date.ToText([Date], "dddd"), type text),
+    AddWeekOfYear = Table.AddColumn(AddDayName, "Week of Year", each Date.WeekOfYear([Date]), Int64.Type),
+    AddIsWeekend = Table.AddColumn(AddWeekOfYear, "Is Weekend", each if Date.DayOfWeek([Date]) >= 5 then true else false, type logical),
+  #"Changed column type" = Table.TransformColumnTypes(AddIsWeekend, {{"Date", type date}})
+in
+    #"Changed column type"
+
+
+
+Custom Columns---
+
+Age Group-
+if [Age] >= 21 and [Age] <= 25 then "21-25"
+else if [Age] >= 26 and [Age] <= 35 then "26-35"
+else if [Age] >= 36 and [Age] <= 45 then "36-45"
+else if [Age] >= 46 and [Age] <= 55 then "46-55"
+else if [Age] >= 56 and [Age] <= 65 then "56-65"
+else "Others"
+
+Salary Band-
+if [Base_Salary_Annual] <= 20000 then "Low"
+else if [Base_Salary_Annual] <= 30000 then "Medium"
+else if [Base_Salary_Annual] <= 50000 then "High"
+else "Very High"
+
+State-
+if [Store_Location] = "Austin" then "Texas"
+else if [Store_Location] = "Baltimore" then "Maryland"
+else if [Store_Location] = "Boston" then "Massachusetts"
+else if [Store_Location] = "Charlotte" then "North Carolina"
+else if [Store_Location] = "Chicago" then "Illinois"
+else if [Store_Location] = "Columbus" then "Ohio"
+else if [Store_Location] = "Dallas" then "Texas"
+else if [Store_Location] = "Denver" then "Colorado"
+else if [Store_Location] = "Detroit" then "Michigan"
+else if [Store_Location] = "Fort Worth" then "Texas"
+else if [Store_Location] = "Houston" then "Texas"
+else if [Store_Location] = "Jacksonville" then "Florida"
+else if [Store_Location] = "Las Vegas" then "Nevada"
+else if [Store_Location] = "Los Angeles" then "California"
+else if [Store_Location] = "Louisville" then "Kentucky"
+else if [Store_Location] = "Memphis" then "Tennessee"
+else if [Store_Location] = "Nashville" then "Tennessee"
+else if [Store_Location] = "New York" then "New York"
+else if [Store_Location] = "Philadelphia" then "Pennsylvania"
+else if [Store_Location] = "Phoenix" then "Arizona"
+else if [Store_Location] = "Portland" then "Oregon"
+else if [Store_Location] = "San Antonio" then "Texas"
+else if [Store_Location] = "San Diego" then "California"
+else if [Store_Location] = "San Jose" then "California"
+else if [Store_Location] = "Seattle" then "Washington"
+else "Unknown"
+
+
+Measures---
+
+1)	Total Employees = DISTINCTCOUNT(Employee[Employee_Id])
+2)	Active Employees = CALCULATE([Total Employees], Employee[Status] = "Active")
+3)	Average Salary = AVERAGE(Employee[Base_Salary_Annual])
+4)	Total Stores = DISTINCTCOUNT(Employee[Store_Id])
+5)	Annual Workforce Cost = SUM(Employee[Base_Salary_Annual])
+6)	Manager = DISTINCTCOUNT(Employee[Manager_Id])
+7)	Inactive Employees = CALCULATE([Total Employees], Employee[Status] = "Inactive")
+8)	TurnOver Rate = DIVIDE([Total Employees], [Inactive Employees], 0)
+9)	Male = CALCULATE([Total Employees], Employee[Gender] = "Male")
+10)	Female = CALCULATE([Total Employees], Employee[Gender] = "Female")
+11)	Icon = "●"
+12)	Emp_Icon = SWITCH(TRUE(), SELECTEDVALUE(Employee[Employment_Type]) = "Contractor", "#CCCCCC",
+SELECTEDVALUE(Employee[Employment_Type]) = "Full-time", "#7AE1F0",
+SELECTEDVALUE(Employee[Employment_Type]) = "Part-time", "#ABECF6",
+SELECTEDVALUE(Employee[Employment_Type]) = "Seasonal", "#F5C4AF")
+Manager_Icon = SWITCH(TRUE(), SELECTEDVALUE(Employee[Manager_Status]) = "Manager", "#6994A7",
+SELECTEDVALUE(Employee[Manager_Status]) = "Senior Manager", "#50A2ED",
+SELECTEDVALUE(Employee[Manager_Status]) = "Executive", "#B3B3B3")
+13)	Manager_Icon = SWITCH(TRUE(), SELECTEDVALUE(Employee[Manager_Status]) = "Manager", "#6994A7",
+SELECTEDVALUE(Employee[Manager_Status]) = "Senior Manager", "#50A2ED",
+SELECTEDVALUE(Employee[Manager_Status]) = "Executive", "#B3B3B3")
+14)	Salary_Icon = SWITCH(TRUE(), SELECTEDVALUE(Employee[Salary_Band]) = "Very High", "#B3B3B3",
+SELECTEDVALUE(Employee[Salary_Band]) = "High", "#ABECF6",
+SELECTEDVALUE(Employee[Salary_Band]) = "Medium", "#7AE1F0",
+SELECTEDVALUE(Employee[Salary_Band]) = "Low", "#F5C4AF")
+
+
+Field Parameters---
+
+KPI = {
+    ("Total Employees", NAMEOF('Employee'[Total Employees]), 0),
+    ("Active Employees", NAMEOF('Employee'[Active Employees]), 1),
+    ("TurnOver Rate", NAMEOF('Employee'[TurnOver Rate]), 2),
+    ("Annual Workforce Cost", NAMEOF('Employee'[Annual Workforce Cost]), 3)
+}
+Employee_Demographics = {
+    ("Age_Group", NAMEOF('Employee'[Age_Group]), 0),
+    ("Department_New", NAMEOF('Employee'[Department_New]), 1),
+    ("Education_Level", NAMEOF('Employee'[Education_Level]), 2),
+    ("Job_Level", NAMEOF('Employee'[Job_Level]), 3)
+}
+
